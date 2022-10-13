@@ -46,7 +46,7 @@ The general approach is to generate all certs on one node and only distribute
 the *necessary* files to the other nodes.
 
 {{< note >}}
-kubeadm contains all the necessary crytographic machinery to generate
+kubeadm contains all the necessary cryptographic machinery to generate
 the certificates described below; no other cryptographic tooling is required for
 this example.
 {{< /note >}}
@@ -242,8 +242,8 @@ this example.
 
     ```sh
     root@HOST0 $ kubeadm init phase etcd local --config=/tmp/${HOST0}/kubeadmcfg.yaml
-    root@HOST1 $ kubeadm init phase etcd local --config=/tmp/${HOST1}/kubeadmcfg.yaml
-    root@HOST2 $ kubeadm init phase etcd local --config=/tmp/${HOST2}/kubeadmcfg.yaml
+    root@HOST1 $ kubeadm init phase etcd local --config=$HOME/kubeadmcfg.yaml
+    root@HOST2 $ kubeadm init phase etcd local --config=$HOME/kubeadmcfg.yaml
     ```
 
 1. Optional: Check the cluster health

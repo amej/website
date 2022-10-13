@@ -36,10 +36,10 @@ git submodule update --init --recursive --depth 1
 
 ## Running the website using a container
 
-To build the site in a container, run the following to build the container image and run it:
+To build the site in a container, run the following:
 
 ```bash
-make container-image
+# You can set $CONTAINER_ENGINE to the name of any Docker-like container tool
 make container-serve
 ```
 
@@ -167,6 +167,14 @@ For more information about contributing to the Kubernetes documentation, see:
 - [Documentation Style Guide](https://kubernetes.io/docs/contribute/style/style-guide/)
 - [Localizing Kubernetes Documentation](https://kubernetes.io/docs/contribute/localization/)
 
+### New contributor ambassadors
+
+If you need help at any point when contributing, the [New Contributor Ambassadors](https://kubernetes.io/docs/contribute/advanced/#serve-as-a-new-contributor-ambassador) are a good point of contact. These are SIG Docs approvers whose responsibilities include mentoring new contributors and helping them through their first few pull requests. The best place to contact the New Contributors Ambassadors would be on the [Kubernetes Slack](https://slack.k8s.io/). Current New Contributors Ambassadors for SIG Docs:
+
+| Name                       | Slack                      | GitHub                     |                   
+| -------------------------- | -------------------------- | -------------------------- |
+| Arsh Sharma                | @arsh                      | @RinkiyaKeDad              |
+
 ## Localization `README.md`'s
 
 | Language                   | Language                   |
@@ -181,7 +189,7 @@ For more information about contributing to the Kubernetes documentation, see:
 
 ## Code of conduct
 
-Participation in the Kubernetes community is governed by the [CNCF Code of Conduct](https://github.com/cncf/foundation/blob/master/code-of-conduct.md).
+Participation in the Kubernetes community is governed by the [CNCF Code of Conduct](https://github.com/cncf/foundation/blob/main/code-of-conduct.md).
 
 ## Thank you
 

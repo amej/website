@@ -7,7 +7,7 @@ description: Configure the kubelet's image credential provider plugin
 content_type: task
 ---
 
-{{< feature-state for_k8s_version="v1.20" state="alpha" >}}
+{{< feature-state for_k8s_version="v1.24" state="beta" >}}
 
 <!-- overview -->
 
@@ -152,4 +152,5 @@ Some example values of `matchImages` patterns are:
 
 * Read the details about `CredentialProviderConfig` in the
   [kubelet configuration API (v1alpha1) reference](/docs/reference/config-api/kubelet-config.v1alpha1/).
+* Read the [kubelet credential provider API reference (v1alpha1)](/docs/reference/config-api/kubelet-credentialprovider.v1alpha1/).
 

@@ -19,15 +19,13 @@ You can configure this admission controller to set cluster-wide defaults and [ex
 
 ## Configure the Admission Controller
 
-{{< tabs name="PodSecurityConfiguration_example_1" >}}
-{{% tab name="pod-security.admission.config.k8s.io/v1beta1" %}}
 ```yaml
 apiVersion: apiserver.config.k8s.io/v1
 kind: AdmissionConfiguration
 plugins:
 - name: PodSecurity
   configuration:
-    apiVersion: pod-security.admission.config.k8s.io/v1beta1
+    apiVersion: pod-security.admission.config.k8s.io/v1
     kind: PodSecurityConfiguration
     # Defaults applied when a mode label is not set.
     #
@@ -38,47 +36,7 @@ plugins:
     #
     # Version label values must be one of:
     # - "latest" (default) 
-    # - specific version like "v{{< skew latestVersion >}}"
-    defaults:
-      enforce: "privileged"
-      enforce-version: "latest"
-      audit: "privileged"
-      audit-version: "latest"
-      warn: "privileged"
-      warn-version: "latest"
-    exemptions:
-      # Array of authenticated usernames to exempt.
-      usernames: []
-      # Array of runtime class names to exempt.
-      runtimeClassNames: []
-      # Array of namespaces to exempt.
-      namespaces: []
-```
-
-{{< note >}}
-v1beta1 configuration requires v1.23+. For v1.22, use v1alpha1.
-{{< /note >}}
-
-{{% /tab %}}
-{{% tab name="pod-security.admission.config.k8s.io/v1alpha1" %}}
-```yaml
-apiVersion: apiserver.config.k8s.io/v1
-kind: AdmissionConfiguration
-plugins:
-- name: PodSecurity
-  configuration:
-    apiVersion: pod-security.admission.config.k8s.io/v1alpha1
-    kind: PodSecurityConfiguration
-    # Defaults applied when a mode label is not set.
-    #
-    # Level label values must be one of:
-    # - "privileged" (default)
-    # - "baseline"
-    # - "restricted"
-    #
-    # Version label values must be one of:
-    # - "latest" (default) 
-    # - specific version like "v{{< skew latestVersion >}}"
+    # - specific version like "v{{< skew currentVersion >}}"
     defaults:
       enforce: "privileged"
       enforce-version: "latest"
@@ -94,5 +52,9 @@ plugins:
       # Array of namespaces to exempt.
       namespaces: []
 ```
-{{% /tab %}}
-{{< /tabs >}}
+
+{{< note >}}
+`pod-security.admission.config.k8s.io/v1` configuration requires v1.25+.
+For v1.23 and v1.24, use [v1beta1](https://v1-24.docs.kubernetes.io/docs/tasks/configure-pod-container/enforce-standards-admission-controller/).
+For v1.22, use [v1alpha1](https://v1-22.docs.kubernetes.io/docs/tasks/configure-pod-container/enforce-standards-admission-controller/).
+{{< /note >}}

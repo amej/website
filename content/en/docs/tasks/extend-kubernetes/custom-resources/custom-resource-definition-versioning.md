@@ -10,7 +10,7 @@ min-kubernetes-server-version: v1.16
 
 <!-- overview -->
 This page explains how to add versioning information to
-[CustomResourceDefinitions](/docs/reference/generated/kubernetes-api/{{< param "version" >}}/#customresourcedefinition-v1beta1-apiextensions), to indicate the stability
+[CustomResourceDefinitions](/docs/reference/kubernetes-api/extend-resources/custom-resource-definition-v1/), to indicate the stability
 level of your CustomResourceDefinitions or advance your API to a new version with conversion between API representations. It also describes how to upgrade an object from one version to another.
 
 ## {{% heading "prerequisites" %}}
@@ -353,6 +353,34 @@ spec:
 {{< /tabs >}}
 
 
+### Version removal
+
+An older API version cannot be dropped from a CustomResourceDefinition manifest until existing persisted data has been migrated to the newer API version for all clusters that served the older version of the custom resource, and the old version is removed from the `status.storedVersions` of the CustomResourceDefinition.
+
+```yaml
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+  name: crontabs.example.com
+spec:
+  group: example.com
+  names:
+    plural: crontabs
+    singular: crontab
+    kind: CronTab
+  scope: Namespaced
+  versions:
+  - name: v1beta1
+    # This indicates the v1beta1 version of the custom resource is no longer served.
+    # API requests to this version receive a not found error in the server response.
+    served: false
+    schema: ...
+  - name: v1
+    served: true
+    # The new served version should be set as the storage version
+    storage: true
+    schema: ...
+```
+
 ## Webhook conversion
 
 {{< feature-state state="stable" for_k8s_version="v1.16" >}}
@@ -444,7 +472,7 @@ spec:
     served: true
     # One and only one version must be marked as the storage version.
     storage: true
-    # Each version can define it's own schema when there is no top-level
+    # Each version can define its own schema when there is no top-level
     # schema is defined.
     schema:
       openAPIV3Schema:
@@ -512,7 +540,7 @@ spec:
     served: true
     # One and only one version must be marked as the storage version.
     storage: true
-    # Each version can define it's own schema when there is no top-level
+    # Each version can define its own schema when there is no top-level
     # schema is defined.
     schema:
       openAPIV3Schema:
@@ -1053,13 +1081,18 @@ The following is an example procedure to upgrade from `v1beta1` to `v1`.
 3.  Remove `v1beta1` from the CustomResourceDefinition `status.storedVersions` field.
 
 {{< note >}}
-The `kubectl` tool currently cannot be used to edit or patch the `status` subresource on a CRD: see the [Kubectl Subresource Support KEP](https://github.com/kubernetes/enhancements/tree/master/keps/sig-cli/2590-kubectl-subresource) for more details.
+The flag `--subresource` is used with the kubectl get, patch, edit, and replace commands to
+fetch and update the subresources, `status` and `scale`, for all the API resources that
+support them. This flag is available starting from kubectl version v1.24. Previously, reading
+subresources (like `status`) via kubectl involved using `kubectl --raw`, and updating
+subresources using kubectl was not possible at all. Starting from v1.24, the `kubectl` tool
+can be used to edit or patch the `status` subresource on a CRD object. See [How to patch a Deployment using the subresource flag](/docs/tasks/manage-kubernetes-objects/update-api-object-kubectl-patch/#scale-kubectl-patch).
 
-The easier way to patch the status subresource from the CLI is directly interacting with the API server using the `curl` tool, in this example:
+This page is part of the documentation for Kubernetes v{{< skew currentVersion >}}.
+If you are running a different version of Kubernetes, consult the documentation for that release.
+
+Here is an example of how to patch the `status` subresource for a CRD object using `kubectl`:
 ```bash
-kubectl proxy &
-curl --header "Content-Type: application/json-patch+json" \
-  --request PATCH http://localhost:8001/apis/apiextensions.k8s.io/v1/customresourcedefinitions/<your CRD name here>/status \
-  --data '[{"op": "replace", "path": "/status/storedVersions", "value":["v1"]}]'
+kubectl patch customresourcedefinitions <CRD_Name> --subresource='status' --type='merge' -p '{"status":{"storedVersions":["v1"]}}'
 ```
 {{< /note >}}

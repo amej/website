@@ -1,7 +1,7 @@
 ---
 reviewers:
 - sig-cluster-lifecycle
-title: Set up a High Availability etcd cluster with kubeadm
+title: Set up a High Availability etcd Cluster with kubeadm
 content_type: task
 weight: 70
 ---
@@ -19,7 +19,8 @@ aspects.
 By default, kubeadm runs a local etcd instance on each control plane node.
 It is also possible to treat the etcd cluster as external and provision
 etcd instances on separate hosts. The differences between the two approaches are covered in the
-[Options for Highly Available topology][/docs/setup/production-environment/tools/kubeadm/ha-topology] page.
+[Options for Highly Available topology](/docs/setup/production-environment/tools/kubeadm/ha-topology) page.
+
 This task walks through the process of creating a high availability external
 etcd cluster of three members that can be used by kubeadm during cluster creation.
 
@@ -30,7 +31,7 @@ etcd cluster of three members that can be used by kubeadm during cluster creatio
   the kubeadm config file.
 * Each host must have systemd and a bash compatible shell installed.
 * Each host must [have a container runtime, kubelet, and kubeadm installed](/docs/setup/production-environment/tools/kubeadm/install-kubeadm/).
-* Each host should have access to the Kubernetes container image registry (`k8s.gcr.io`) or list/pull the required etcd image using
+* Each host should have access to the Kubernetes container image registry (`registry.k8s.io`) or list/pull the required etcd image using
 `kubeadm config images list/pull`. This guide will setup etcd instances as
 [static pods](/docs/tasks/configure-pod-container/static-pod/) managed by a kubelet.
 * Some infrastructure to copy files between hosts. For example `ssh` and `scp`
@@ -44,7 +45,7 @@ The general approach is to generate all certs on one node and only distribute
 the *necessary* files to the other nodes.
 
 {{< note >}}
-kubeadm contains all the necessary crytographic machinery to generate
+kubeadm contains all the necessary cryptographic machinery to generate
 the certificates described below; no other cryptographic tooling is required for
 this example.
 {{< /note >}}
@@ -266,8 +267,8 @@ on Kubernetes dual-stack support see [Dual-stack support with kubeadm](/docs/set
 
     ```sh
     root@HOST0 $ kubeadm init phase etcd local --config=/tmp/${HOST0}/kubeadmcfg.yaml
-    root@HOST1 $ kubeadm init phase etcd local --config=/tmp/${HOST1}/kubeadmcfg.yaml
-    root@HOST2 $ kubeadm init phase etcd local --config=/tmp/${HOST2}/kubeadmcfg.yaml
+    root@HOST1 $ kubeadm init phase etcd local --config=$HOME/kubeadmcfg.yaml
+    root@HOST2 $ kubeadm init phase etcd local --config=$HOME/kubeadmcfg.yaml
     ```
 
 1. Optional: Check the cluster health
@@ -275,7 +276,7 @@ on Kubernetes dual-stack support see [Dual-stack support with kubeadm](/docs/set
     ```sh
     docker run --rm -it \
     --net host \
-    -v /etc/kubernetes:/etc/kubernetes k8s.gcr.io/etcd:${ETCD_TAG} etcdctl \
+    -v /etc/kubernetes:/etc/kubernetes registry.k8s.io/etcd:${ETCD_TAG} etcdctl \
     --cert /etc/kubernetes/pki/etcd/peer.crt \
     --key /etc/kubernetes/pki/etcd/peer.key \
     --cacert /etc/kubernetes/pki/etcd/ca.crt \

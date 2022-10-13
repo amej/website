@@ -1,6 +1,6 @@
 ---
-
-
+# reviewers:
+# - sig-cluster-lifecycle
 title: kubeadm API로 컴포넌트 사용자 정의하기
 content_type: concept
 weight: 40
@@ -24,9 +24,12 @@ kubeadm의 CoreDNS 디플로이먼트 사용자 정의는 현재 제공되지 �
 더 자세한 사항은 [kubeadm에서 초기화 단계 사용하기](/docs/reference/setup-tools/kubeadm/kubeadm-init/#init-phases)을 참고한다.
 {{< /note >}}
 
-<!-- body -->
+{{< note >}}
+이미 생성된 클러스터를 다시 구성하려면 
+[kubeadm 클러스터 다시 구성하기](/docs/tasks/administer-cluster/kubeadm/kubeadm-reconfigure/)를 참고한다.
+{{< /note >}}
 
-{{< feature-state for_k8s_version="v1.12" state="stable" >}}
+<!-- body -->
 
 ## `ClusterConfiguration`의 플래그로 컨트롤 플레인 사용자 정의하기
 
@@ -144,7 +147,6 @@ Kubeadm을 사용하면 패치 파일이 있는 디렉토리를 개별 노드에
 ```yaml
 apiVersion: kubeadm.k8s.io/v1beta3
 kind: InitConfiguration
-nodeRegistration:
   patches:
     directory: /home/user/somedir
 ```
@@ -159,7 +161,6 @@ nodeRegistration:
 ```yaml
 apiVersion: kubeadm.k8s.io/v1beta3
 kind: JoinConfiguration
-nodeRegistration:
   patches:
     directory: /home/user/somedir
 ```

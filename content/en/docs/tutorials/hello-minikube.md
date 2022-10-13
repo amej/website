@@ -94,7 +94,7 @@ recommended way to manage the creation and scaling of Pods.
 Pod runs a Container based on the provided Docker image.
 
     ```shell
-    kubectl create deployment hello-node --image=k8s.gcr.io/echoserver:1.4
+    kubectl create deployment hello-node --image=registry.k8s.io/echoserver:1.4
     ```
 
 2. View the Deployment:
@@ -136,7 +136,7 @@ Pod runs a Container based on the provided Docker image.
     ```
 
 {{< note >}}
-For more information about `kubectl` commands, see the [kubectl overview](/docs/reference/kubectl/overview/).
+For more information about `kubectl` commands, see the [kubectl overview](/docs/reference/kubectl/).
 {{< /note >}}
 
 ## Create a Service
@@ -155,7 +155,7 @@ Kubernetes [*Service*](/docs/concepts/services-networking/service/).
     The `--type=LoadBalancer` flag indicates that you want to expose your Service
     outside of the cluster.
     
-    The application code inside the image `k8s.gcr.io/echoserver` only listens on TCP port 8080. If you used
+    The application code inside the image `registry.k8s.io/echoserver` only listens on TCP port 8080. If you used
     `kubectl expose` to expose a different port, clients could not connect to that other port.
 
 2. View the Service you created:

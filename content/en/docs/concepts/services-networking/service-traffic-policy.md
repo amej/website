@@ -3,13 +3,18 @@ reviewers:
 - maplain
 title: Service Internal Traffic Policy
 content_type: concept
-weight: 45
+weight: 75
+description: >-
+  If two Pods in your cluster want to communicate, and both Pods are actually running on
+  the same node, _Service Internal Traffic Policy_ to keep network traffic within that node.
+  Avoiding a round trip via the cluster network can help with reliability, performance
+  (network latency and throughput), or cost.
 ---
 
 
 <!-- overview -->
 
-{{< feature-state for_k8s_version="v1.21" state="alpha" >}}
+{{< feature-state for_k8s_version="v1.23" state="beta" >}}
 
 _Service Internal Traffic Policy_ enables internal traffic restrictions to only route
 internal traffic to endpoints within the node the traffic originated from. The
@@ -20,10 +25,10 @@ cluster. This can help to reduce costs and improve performance.
 
 ## Using Service Internal Traffic Policy
 
-Once you have enabled the `ServiceInternalTrafficPolicy`
-[feature gate](/docs/reference/command-line-tools-reference/feature-gates/),
-you can enable an internal-only traffic policy for a
-{{< glossary_tooltip text="Services" term_id="service" >}}, by setting its
+The `ServiceInternalTrafficPolicy` [feature gate](/docs/reference/command-line-tools-reference/feature-gates/)
+is a Beta feature and enabled by default.
+When the feature is enabled, you can enable the internal-only traffic policy for a
+{{< glossary_tooltip text="Service" term_id="service" >}}, by setting its
 `.spec.internalTrafficPolicy` to `Local`.
 This tells kube-proxy to only use node local endpoints for cluster internal traffic.
 
@@ -43,7 +48,7 @@ metadata:
   name: my-service
 spec:
   selector:
-    app: MyApp
+    app.kubernetes.io/name: MyApp
   ports:
     - protocol: TCP
       port: 80
@@ -59,12 +64,6 @@ endpoints are considered. When it's `Cluster` or missing, all endpoints are
 considered.
 When the [feature gate](/docs/reference/command-line-tools-reference/feature-gates/)
 `ServiceInternalTrafficPolicy` is enabled, `spec.internalTrafficPolicy` defaults to "Cluster".
-
-## Constraints
-
-* Service Internal Traffic Policy is not used when `externalTrafficPolicy` is set
-  to `Local` on a Service. It is possible to use both features in the same cluster
-  on different Services, just not on the same Service.
 
 ## {{% heading "whatsnext" %}}
 

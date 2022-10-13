@@ -121,7 +121,7 @@ token,user,uid,"group1,group2,group3"
 
 When using bearer token authentication from an http client, the API
 server expects an `Authorization` header with a value of `Bearer
-THETOKEN`.  The bearer token must be a character sequence that can be
+<token>`.  The bearer token must be a character sequence that can be
 put in an HTTP header value using no more than the encoding and
 quoting facilities of HTTP.  For example: if the bearer token is
 `31ada4fd-adec-460c-809a-9e56ceb75269` then it would appear in an HTTP
@@ -171,8 +171,10 @@ how to manage these tokens with `kubeadm`.
 A service account is an automatically enabled authenticator that uses signed
 bearer tokens to verify requests. The plugin takes two optional flags:
 
-* `--service-account-key-file` A file containing a PEM encoded key for signing bearer tokens.
-If unspecified, the API server's TLS private key will be used.
+* `--service-account-key-file` File containing PEM-encoded x509 RSA or ECDSA
+private or public keys, used to verify ServiceAccount tokens. The specified file
+can contain multiple keys, and the flag can be specified multiple times with
+different files. If unspecified, --tls-private-key-file is used.
 * `--service-account-lookup` If enabled, tokens which are deleted from the API will be revoked.
 
 Service accounts are usually created automatically by the API server and
@@ -208,65 +210,42 @@ Service account bearer tokens are perfectly valid to use outside the cluster and
 can be used to create identities for long standing jobs that wish to talk to the
 Kubernetes API. To manually create a service account, use the `kubectl create
 serviceaccount (NAME)` command. This creates a service account in the current
-namespace and an associated secret.
+namespace.
 
 ```bash
 kubectl create serviceaccount jenkins
 ```
 
 ```none
-serviceaccount "jenkins" created
+serviceaccount/jenkins created
 ```
 
-Check an associated secret:
+Create an associated token:
 
 ```bash
-kubectl get serviceaccounts jenkins -o yaml
+kubectl create token jenkins
 ```
 
-```yaml
-apiVersion: v1
-kind: ServiceAccount
-metadata:
-  # ...
-secrets:
-- name: jenkins-token-1yvwg
+```none
+eyJhbGciOiJSUzI1NiIsImtp...
 ```
 
-The created secret holds the public CA of the API server and a signed JSON Web
-Token (JWT).
-
-```bash
-kubectl get secret jenkins-token-1yvwg -o yaml
-```
-
-```yaml
-apiVersion: v1
-data:
-  ca.crt: (APISERVER'S CA BASE64 ENCODED)
-  namespace: ZGVmYXVsdA==
-  token: (BEARER TOKEN BASE64 ENCODED)
-kind: Secret
-metadata:
-  # ...
-type: kubernetes.io/service-account-token
-```
-
-{{< note >}}
-Values are base64 encoded because secrets are always base64 encoded.
-{{< /note >}}
+The created token is a signed JSON Web Token (JWT).
 
 The signed JWT can be used as a bearer token to authenticate as the given service
 account. See [above](#putting-a-bearer-token-in-a-request) for how the token is included
-in a request.  Normally these secrets are mounted into pods for in-cluster access to
+in a request.  Normally these tokens are mounted into pods for in-cluster access to
 the API server, but can be used from outside the cluster as well.
 
 Service accounts authenticate with the username `system:serviceaccount:(NAMESPACE):(SERVICEACCOUNT)`,
 and are assigned to the groups `system:serviceaccounts` and `system:serviceaccounts:(NAMESPACE)`.
 
-WARNING: Because service account tokens are stored in secrets, any user with
-read access to those secrets can authenticate as the service account. Be cautious
-when granting permissions to service accounts and read capabilities for secrets.
+{{< warning >}}
+Because service account tokens can also be stored in Secret API objects, any user with
+write access to Secrets can request a token, and any user with read access to those 
+Secrets can authenticate as the service account. Be cautious when granting permissions
+to service accounts and read or write capabilities for Secrets.
+{{< /warning >}}
 
 ### OpenID Connect Tokens
 
@@ -342,6 +321,7 @@ To enable the plugin, configure the following flags on the API server:
 | `--oidc-groups-prefix` | Prefix prepended to group claims to prevent clashes with existing names (such as `system:` groups). For example, the value `oidc:` will create group names like `oidc:engineering` and `oidc:infra`. | `oidc:` | No |
 | `--oidc-required-claim` | A key=value pair that describes a required claim in the ID Token. If set, the claim is verified to be present in the ID Token with a matching value. Repeat this flag to specify multiple claims. | `claim=value` | No |
 | `--oidc-ca-file` | The path to the certificate for the CA that signed your identity provider's web certificate.  Defaults to the host's root CAs. | `/etc/kubernetes/ssl/kc-ca.pem` | No |
+| `--oidc-signing-algs` | The signing algorithms accepted. Default is "RS256". | `RS512` | No |
 
 Importantly, the API server is not an OAuth2 client, rather it can only be
 configured to trust a single issuer. This allows the use of public providers,
@@ -733,7 +713,7 @@ The following HTTP headers can be used to performing an impersonation request:
 
 * `Impersonate-User`: The username to act as.
 * `Impersonate-Group`: A group name to act as. Can be provided multiple times to set multiple groups. Optional. Requires "Impersonate-User".
-* `Impersonate-Extra-( extra name )`: A dynamic header used to associate extra fields with the user. Optional. Requires "Impersonate-User". In order to be preserved consistently, `( extra name )` should be lower-case, and any characters which aren't [legal in HTTP header labels](https://tools.ietf.org/html/rfc7230#section-3.2.6) MUST be utf8 and [percent-encoded](https://tools.ietf.org/html/rfc3986#section-2.1).
+* `Impersonate-Extra-( extra name )`: A dynamic header used to associate extra fields with the user. Optional. Requires "Impersonate-User". In order to be preserved consistently, `( extra name )` must be lower-case, and any characters which aren't [legal in HTTP header labels](https://tools.ietf.org/html/rfc7230#section-3.2.6) MUST be utf8 and [percent-encoded](https://tools.ietf.org/html/rfc3986#section-2.1).
 * `Impersonate-Uid`: A unique identifier that represents the user being impersonated. Optional. Requires "Impersonate-User". Kubernetes does not impose any format requirements on this string.
 
 {{< note >}}
@@ -856,6 +836,14 @@ rules:
   resourceNames: ["06f6ce97-e2c5-4ab8-7ba5-7654dd08d52b"]
 ```
 
+{{< note >}}
+Impersonating a user or group allows you to perform any action as if you were that user or group;
+for that reason, impersonation is not namespace scoped.
+If you want to allow impersonation using Kubernetes RBAC, 
+this requires using a `ClusterRole` and a `ClusterRoleBinding`,
+not a `Role` and `RoleBinding`.
+{{< /note >}}
+
 ## client-go credential plugins
 
 {{< feature-state for_k8s_version="v1.22" state="stable" >}}
@@ -905,7 +893,7 @@ users:
       #
       # The API version returned by the plugin MUST match the version listed here.
       #
-      # To integrate with tools that support multiple versions (such as client.authentication.k8s.io/v1alpha1),
+      # To integrate with tools that support multiple versions (such as client.authentication.k8s.io/v1beta1),
       # set an environment variable, pass an argument to the tool that indicates which version the exec plugin expects,
       # or read the version from the ExecCredential object in the KUBERNETES_EXEC_INFO environment variable.
       apiVersion: "client.authentication.k8s.io/v1"
@@ -978,7 +966,7 @@ users:
       #
       # The API version returned by the plugin MUST match the version listed here.
       #
-      # To integrate with tools that support multiple versions (such as client.authentication.k8s.io/v1alpha1),
+      # To integrate with tools that support multiple versions (such as client.authentication.k8s.io/v1),
       # set an environment variable, pass an argument to the tool that indicates which version the exec plugin expects,
       # or read the version from the ExecCredential object in the KUBERNETES_EXEC_INFO environment variable.
       apiVersion: "client.authentication.k8s.io/v1beta1"
@@ -1144,7 +1132,9 @@ If specified, `clientKeyData` and `clientCertificateData` must both must be pres
 {{< /tabs >}}
 
 Optionally, the response can include the expiry of the credential formatted as a
-RFC3339 timestamp. Presence or absence of an expiry has the following impact:
+[RFC 3339](https://datatracker.ietf.org/doc/html/rfc3339) timestamp.
+
+Presence or absence of an expiry has the following impact:
 
 - If an expiry is included, the bearer token and TLS credentials are cached until
   the expiry time is reached, or if the server responds with a 401 HTTP status code,

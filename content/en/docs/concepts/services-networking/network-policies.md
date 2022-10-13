@@ -6,6 +6,11 @@ reviewers:
 title: Network Policies
 content_type: concept
 weight: 50
+description: >-
+  If you want to control traffic flow at the IP address or port level (OSI layer 3 or 4),
+  NetworkPolicies allow you to specify rules for traffic flow within your cluster, and
+  also between Pods and the outside world.
+  Your cluster must use a network plugin that supports NetworkPolicy enforcement.
 ---
 
 <!-- overview -->
@@ -45,42 +50,7 @@ See the [NetworkPolicy](/docs/reference/generated/kubernetes-api/{{< param "vers
 
 An example NetworkPolicy might look like this:
 
-```yaml
-apiVersion: networking.k8s.io/v1
-kind: NetworkPolicy
-metadata:
-  name: test-network-policy
-  namespace: default
-spec:
-  podSelector:
-    matchLabels:
-      role: db
-  policyTypes:
-  - Ingress
-  - Egress
-  ingress:
-  - from:
-    - ipBlock:
-        cidr: 172.17.0.0/16
-        except:
-        - 172.17.1.0/24
-    - namespaceSelector:
-        matchLabels:
-          project: myproject
-    - podSelector:
-        matchLabels:
-          role: frontend
-    ports:
-    - protocol: TCP
-      port: 6379
-  egress:
-  - to:
-    - ipBlock:
-        cidr: 10.0.0.0/24
-    ports:
-    - protocol: TCP
-      port: 5978
-```
+{{< codenew file="service/networking/networkpolicy.yaml" >}}
 
 {{< note >}}
 POSTing this to the API server for your cluster will have no effect unless your chosen networking solution supports network policy.
@@ -89,7 +59,7 @@ POSTing this to the API server for your cluster will have no effect unless your 
 __Mandatory Fields__: As with all other Kubernetes config, a NetworkPolicy
 needs `apiVersion`, `kind`, and `metadata` fields.  For general information
 about working with config files, see
-[Configure Containers Using a ConfigMap](/docs/tasks/configure-pod-container/configure-pod-configmap/),
+[Configure a Pod to Use a ConfigMap](/docs/tasks/configure-pod-container/configure-pod-configmap/),
 and [Object Management](/docs/concepts/overview/working-with-objects/object-management).
 
 __spec__: NetworkPolicy [spec](https://github.com/kubernetes/community/blob/master/contributors/devel/sig-architecture/api-conventions.md#spec-and-status) has all the information needed to define a particular network policy in the given namespace.
@@ -228,9 +198,9 @@ When the feature gate is enabled, you can set the `protocol` field of a NetworkP
 You must be using a {{< glossary_tooltip text="CNI" term_id="cni" >}} plugin that supports SCTP protocol NetworkPolicies.
 {{< /note >}}
 
-## Targeting a range of Ports
+## Targeting a range of ports
 
-{{< feature-state for_k8s_version="v1.22" state="beta" >}}
+{{< feature-state for_k8s_version="v1.25" state="stable" >}}
 
 When writing a NetworkPolicy, you can target a range of ports instead of a single port.
 
@@ -263,10 +233,6 @@ with any IP within the range `10.0.0.0/24` over TCP, provided that the target
 port is between the range 32000 and 32768.
 
 The following restrictions apply when using this field:
-* As a beta feature, this is enabled by default. To disable the `endPort` field 
-at a cluster level, you (or your cluster administrator) need to disable the 
-`NetworkPolicyEndPort` [feature gate](/docs/reference/command-line-tools-reference/feature-gates/) 
-for the API server with `--feature-gates=NetworkPolicyEndPort=false,…`.
 * The `endPort` field must be equal to or greater than the `port` field.
 * `endPort` can only be defined if `port` is also defined.
 * Both ports must be numeric.
@@ -281,7 +247,7 @@ the policy will be applied only for the single `port` field.
 
 ## Targeting a Namespace by its name
 
-{{< feature-state state="beta" for_k8s_version="1.21" >}}
+{{< feature-state for_k8s_version="1.22" state="stable" >}}
 
 The Kubernetes control plane sets an immutable label `kubernetes.io/metadata.name` on all
 namespaces, provided that the `NamespaceDefaultLabelName`
@@ -293,7 +259,7 @@ standardized label to target a specific namespace.
 
 ## What you can't do with network policies (at least, not yet)
 
-As of Kubernetes {{< skew latestVersion >}}, the following functionality does not exist in the NetworkPolicy API, but you might be able to implement workarounds using Operating System components (such as SELinux, OpenVSwitch, IPTables, and so on) or Layer 7 technologies (Ingress controllers, Service Mesh implementations) or admission controllers.  In case you are new to network security in Kubernetes, its worth noting that the following User Stories cannot (yet) be implemented using the NetworkPolicy API.
+As of Kubernetes {{< skew currentVersion >}}, the following functionality does not exist in the NetworkPolicy API, but you might be able to implement workarounds using Operating System components (such as SELinux, OpenVSwitch, IPTables, and so on) or Layer 7 technologies (Ingress controllers, Service Mesh implementations) or admission controllers.  In case you are new to network security in Kubernetes, its worth noting that the following User Stories cannot (yet) be implemented using the NetworkPolicy API.
 
 - Forcing internal cluster traffic to go through a common gateway (this might be best served with a service mesh or other proxy).
 - Anything TLS related (use a service mesh or ingress controller for this).

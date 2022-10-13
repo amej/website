@@ -1,9 +1,9 @@
 ---
-
-
-
-
-
+# reviewers:
+# - jsafrane
+# - saad-ali
+# - thockin
+# - msau42
 title: 스토리지 클래스
 content_type: concept
 weight: 30
@@ -87,7 +87,7 @@ volumeBindingMode: Immediate
 여기 목록에서 "내부" 프로비저너를 지정할 수 있다(이
 이름은 "kubernetes.io" 가 접두사로 시작하고, 쿠버네티스와
 함께 제공된다). 또한, 쿠버네티스에서 정의한
-[사양](https://git.k8s.io/community/contributors/design-proposals/storage/volume-provisioning.md)을
+[사양](https://git.k8s.io/design-proposals-archive/storage/volume-provisioning.md)을
 따르는 독립적인 프로그램인 외부 프로비저너를 실행하고 지정할 수 있다.
 외부 프로비저너의 작성자는 코드의 수명, 프로비저너의
 배송 방법, 실행 방법, (Flex를 포함한)볼륨 플러그인
@@ -241,8 +241,8 @@ allowedTopologies:
 - matchLabelExpressions:
   - key: failure-domain.beta.kubernetes.io/zone
     values:
-    - us-central1-a
-    - us-central1-b
+    - us-central-1a
+    - us-central-1b
 ```
 
 ## 파라미터
@@ -434,7 +434,7 @@ provisioner: example.com/external-nfs
 parameters:
   server: nfs-server.example.com
   path: /share
-  readOnly: false
+  readOnly: "false"
 ```
 
 * `server`: NFS 서버의 호스트네임 또는 IP 주소.
@@ -470,14 +470,14 @@ parameters:
 
 vSphere 스토리지 클래스에는 두 가지 유형의 프로비저닝 도구가 있다.
 
-- [CSI 프로비저닝 도구](#csi-프로비저닝-도구): `csi.vsphere.vmware.com`
+- [CSI 프로비저닝 도구](#vsphere-provisioner-csi): `csi.vsphere.vmware.com`
 - [vCP 프로비저닝 도구](#vcp-프로비저닝-도구): `kubernetes.io/vsphere-volume`
 
 인-트리 프로비저닝 도구는 [사용 중단](/blog/2019/12/09/kubernetes-1-17-feature-csi-migration-beta/#why-are-we-migrating-in-tree-plugins-to-csi)되었다. CSI 프로비저닝 도구에 대한 자세한 내용은 [쿠버네티스 vSphere CSI 드라이버](https://vsphere-csi-driver.sigs.k8s.io/) 및 [vSphereVolume CSI 마이그레이션](/ko/docs/concepts/storage/volumes/#csi-마이그레이션)을 참고한다.
 
 #### CSI 프로비저닝 도구 {#vsphere-provisioner-csi}
 
-vSphere CSI 스토리지클래스 프로비저닝 도구는 Tanzu 쿠버네티스 클러스터에서 작동한다. 예시는 [vSphere CSI 리포지터리](https://raw.githubusercontent.com/kubernetes-sigs/vsphere-csi-driver/master/example/vanilla-k8s-file-driver/example-sc.yaml)를 참조한다.
+vSphere CSI 스토리지클래스 프로비저닝 도구는 Tanzu 쿠버네티스 클러스터에서 작동한다. 예시는 [vSphere CSI 리포지터리](https://github.com/kubernetes-sigs/vsphere-csi-driver/blob/master/example/vanilla-k8s-RWM-filesystem-volumes/example-sc.yaml)를 참조한다.
 
 #### vCP 프로비저닝 도구
 
@@ -534,7 +534,7 @@ vSphere CSI 스토리지클래스 프로비저닝 도구는 Tanzu 쿠버네티�
 
     * 쿠버네티스 내부의 가상 SAN 정책 지원
 
-        Vsphere 인프라스트럭쳐(Vsphere Infrastructure (VI)) 관리자는
+        Vsphere 인프라스트럭처(Vsphere Infrastructure (VI)) 관리자는
         동적 볼륨 프로비저닝 중에 사용자 정의 가상 SAN 스토리지
         기능을 지정할 수 있다. 이제 동적 볼륨 프로비저닝 중에 스토리지
         기능의 형태로 성능 및 가용성과 같은 스토리지 요구 사항을 정의할
@@ -797,7 +797,7 @@ parameters:
   storagePool: sp1
   storageMode: ThinProvisioned
   secretRef: sio-secret
-  readOnly: false
+  readOnly: "false"
   fsType: xfs
 ```
 

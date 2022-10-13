@@ -4,8 +4,8 @@ reviewers:
 title: Kubernetes Components
 content_type: concept
 description: >
-  A Kubernetes cluster consists of the components that represent the control plane
-  and a set of machines called nodes.
+  A Kubernetes cluster consists of the components that are a part of the control
+  plane and a set of machines called nodes.
 weight: 20
 card: 
   name: concepts
@@ -30,7 +30,7 @@ Control plane components can be run on any machine in the cluster. However,
 for simplicity, set up scripts typically start all control plane components on
 the same machine, and do not run user containers on this machine. See
 [Creating Highly Available clusters with kubeadm](/docs/setup/production-environment/tools/kubeadm/high-availability/)
-for an example control plane setup that runs across multiple VMs.
+for an example control plane setup that runs across multiple machines.
 
 ### kube-apiserver
 
@@ -114,7 +114,7 @@ Containers started by Kubernetes automatically include this DNS server in their 
 
 ### Container Resource Monitoring
 
-[Container Resource Monitoring](/docs/tasks/debug-application-cluster/resource-usage-monitoring/) records generic time-series metrics
+[Container Resource Monitoring](/docs/tasks/debug/debug-cluster/resource-usage-monitoring/) records generic time-series metrics
 about containers in a central database, and provides a UI for browsing that data.
 
 ### Cluster-level Logging

@@ -139,7 +139,7 @@ labels and an appropriate restart policy. For labels, make sure not to overlap w
 Only a [`.spec.template.spec.restartPolicy`](/docs/concepts/workloads/pods/pod-lifecycle/#restart-policy) equal to `Always` is allowed, which is the default if not specified.
 
 For local container restarts, ReplicationControllers delegate to an agent on the node,
-for example the [Kubelet](/docs/reference/command-line-tools-reference/kubelet/) or Docker.
+for example the [Kubelet](/docs/reference/command-line-tools-reference/kubelet/).
 
 ### Labels on the ReplicationController
 
@@ -185,7 +185,7 @@ delete`](/docs/reference/generated/kubectl/kubectl-commands#delete).  Kubectl wi
 for it to delete each pod before deleting the ReplicationController itself.  If this kubectl
 command is interrupted, it can be restarted.
 
-When using the REST API or Go client library, you need to do the steps explicitly (scale replicas to
+When using the REST API or [client library](/docs/reference/using-api/client-libraries), you need to do the steps explicitly (scale replicas to
 0, wait for pod deletions, then delete the ReplicationController).
 
 ### Deleting only a ReplicationController
@@ -194,7 +194,7 @@ You can delete a ReplicationController without affecting any of its pods.
 
 Using kubectl, specify the `--cascade=orphan` option to [`kubectl delete`](/docs/reference/generated/kubectl/kubectl-commands#delete).
 
-When using the REST API or Go client library, you can delete the ReplicationController object.
+When using the REST API or [client library](/docs/reference/using-api/client-libraries), you can delete the ReplicationController object.
 
 Once the original is deleted, you can create a new ReplicationController to replace it.  As long
 as the old and new `.spec.selector` are the same, then the new one will adopt the old pods.
@@ -266,11 +266,11 @@ Note that we recommend using Deployments instead of directly using Replica Sets,
 
 ### Deployment (Recommended)
 
-[`Deployment`](/docs/concepts/workloads/controllers/deployment/) is a higher-level API object that updates its underlying Replica Sets and their Pods. Deployments are recommended if you want this rolling update functionality because, they are declarative, server-side, and have additional features.
+[`Deployment`](/docs/concepts/workloads/controllers/deployment/) is a higher-level API object that updates its underlying Replica Sets and their Pods. Deployments are recommended if you want the rolling update functionality,  because they are declarative, server-side, and have additional features.
 
 ### Bare Pods
 
-Unlike in the case where a user directly created pods, a ReplicationController replaces pods that are deleted or terminated for any reason, such as in the case of node failure or disruptive node maintenance, such as a kernel upgrade. For this reason, we recommend that you use a ReplicationController even if your application requires only a single pod. Think of it similarly to a process supervisor, only it supervises multiple pods across multiple nodes instead of individual processes on a single node.  A ReplicationController delegates local container restarts to some agent on the node (for example, Kubelet or Docker).
+Unlike in the case where a user directly created pods, a ReplicationController replaces pods that are deleted or terminated for any reason, such as in the case of node failure or disruptive node maintenance, such as a kernel upgrade. For this reason, we recommend that you use a ReplicationController even if your application requires only a single pod. Think of it similarly to a process supervisor, only it supervises multiple pods across multiple nodes instead of individual processes on a single node.  A ReplicationController delegates local container restarts to some agent on the node, such as the kubelet.
 
 ### Job
 

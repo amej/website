@@ -3,7 +3,11 @@ reviewers:
 - robscott
 title: Topology Aware Hints
 content_type: concept
-weight: 45
+weight: 70
+description: >-
+  _Topology Aware Hints_ provides a mechanism to help keep network traffic within the zone
+  where it originated. Preferring same-zone traffic between Pods in your cluster can help
+  with reliability, performance (network latency and throughput), or cost.
 ---
 
 
@@ -30,7 +34,7 @@ Routing". When calculating the endpoints for a {{< glossary_tooltip term_id="Ser
 the EndpointSlice controller considers the topology (region and zone) of each endpoint
 and populates the hints field to allocate it to a zone.
 Cluster components such as the {{< glossary_tooltip term_id="kube-proxy" text="kube-proxy" >}}
-can then consume those hints, and use them to influence how traffic to is routed
+can then consume those hints, and use them to influence how the traffic is routed
 (favoring topologically closer endpoints).
 
 ## Using Topology Aware Hints
@@ -53,7 +57,7 @@ when this feature is enabled. The controller allocates a proportional amount of
 endpoints to each zone. This proportion is based on the
 [allocatable](/docs/tasks/administer-cluster/reserve-compute-resources/#node-allocatable)
 CPU cores for nodes running in that zone. For example, if one zone had 2 CPU
-cores and another zone only had 1 CPU core, the controller would allocated twice
+cores and another zone only had 1 CPU core, the controller would allocate twice
 as many endpoints to the zone with 2 CPU cores.
 
 The following example shows what an EndpointSlice looks like when hints have
@@ -142,7 +146,7 @@ zone.
   portion of nodes are unready.
 
 * The EndpointSlice controller does not take into account {{< glossary_tooltip
-  text="tolerations" term_id="toleration" >}} when deploying calculating the
+  text="tolerations" term_id="toleration" >}} when deploying or calculating the
   proportions of each zone. If the Pods backing a Service are limited to a
   subset of Nodes in the cluster, this will not be taken into account.
 

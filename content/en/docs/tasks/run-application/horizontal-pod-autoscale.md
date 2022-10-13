@@ -56,8 +56,9 @@ Kubernetes implements horizontal pod autoscaling as a control loop that runs int
 (and the default interval is 15 seconds).
 
 Once during each period, the controller manager queries the resource utilization against the
-metrics specified in each HorizontalPodAutoscaler definition.  The controller manager
-obtains the metrics from either the resource metrics API (for per-pod resource metrics),
+metrics specified in each HorizontalPodAutoscaler definition.  The controller manager 
+finds the target resource defined by the `scaleTargetRef`,
+then selects the pods based on the target resource's `.spec.selector` labels, and obtains the metrics from either the resource metrics API (for per-pod resource metrics),
 or the custom metrics API (for all other metrics).
 
 * For per-pod resource metrics (like CPU), the controller fetches the metrics
@@ -87,9 +88,9 @@ or the custom metrics API (for all other metrics).
 The common use for HorizontalPodAutoscaler is to configure it to fetch metrics from
 {{< glossary_tooltip text="aggregated APIs" term_id="aggregation-layer" >}}
 (`metrics.k8s.io`, `custom.metrics.k8s.io`, or `external.metrics.k8s.io`).  The `metrics.k8s.io` API is
-usually provided by an add on named Metrics Server, which needs to be launched separately.
+usually provided by an add-on named Metrics Server, which needs to be launched separately.
 For more information about resource metrics, see
-[Metrics Server](/docs/tasks/debug-application-cluster/resource-metrics-pipeline/#metrics-server).
+[Metrics Server](/docs/tasks/debug/debug-cluster/resource-metrics-pipeline/#metrics-server).
 
 [Support for metrics APIs](#support-for-metrics-apis) explains the stability guarantees and support status for these
 different APIs.
@@ -328,7 +329,7 @@ APIs, cluster administrators must ensure that:
 * The corresponding APIs are registered:
 
    * For resource metrics, this is the `metrics.k8s.io` API, generally provided by [metrics-server](https://github.com/kubernetes-sigs/metrics-server).
-     It can be launched as a cluster addon.
+     It can be launched as a cluster add-on.
 
    * For custom metrics, this is the `custom.metrics.k8s.io` API.  It's provided by "adapter" API servers provided by metrics solution vendors.
      Check with your metrics pipeline to see if there is a Kubernetes metrics adapter available.
@@ -336,9 +337,9 @@ APIs, cluster administrators must ensure that:
    * For external metrics, this is the `external.metrics.k8s.io` API.  It may be provided by the custom metrics adapters provided above.
 
 For more information on these different metrics paths and how they differ please see the relevant design proposals for
-[the HPA V2](https://github.com/kubernetes/community/blob/master/contributors/design-proposals/autoscaling/hpa-v2.md),
-[custom.metrics.k8s.io](https://github.com/kubernetes/community/blob/master/contributors/design-proposals/instrumentation/custom-metrics-api.md)
-and [external.metrics.k8s.io](https://github.com/kubernetes/community/blob/master/contributors/design-proposals/instrumentation/external-metrics-api.md).
+[the HPA V2](https://git.k8s.io/design-proposals-archive/autoscaling/hpa-v2.md),
+[custom.metrics.k8s.io](https://git.k8s.io/design-proposals-archive/instrumentation/custom-metrics-api.md)
+and [external.metrics.k8s.io](https://git.k8s.io/design-proposals-archive/instrumentation/external-metrics-api.md).
 
 For examples of how to use them see [the walkthrough for using custom metrics](/docs/tasks/run-application/horizontal-pod-autoscale-walkthrough/#autoscaling-on-multiple-metrics-and-custom-metrics)
 and [the walkthrough for using external metrics](/docs/tasks/run-application/horizontal-pod-autoscale-walkthrough/#autoscaling-on-metrics-not-related-to-kubernetes-objects).
@@ -399,7 +400,7 @@ scaling in that direction.
 ### Stabilization window
 
 The stabilization window is used to restrict the [flapping](#flapping) of
-replicas count when the metrics used for scaling keep fluctuating. The autoscaling algorithm
+replica count when the metrics used for scaling keep fluctuating. The autoscaling algorithm
 uses this window to infer a previous desired state and avoid unwanted changes to workload
 scale.
 
@@ -513,7 +514,7 @@ Finally, you can delete an autoscaler using `kubectl delete hpa`.
 
 In addition, there is a special `kubectl autoscale` command for creating a HorizontalPodAutoscaler object.
 For instance, executing `kubectl autoscale rs foo --min=2 --max=5 --cpu-percent=80`
-will create an autoscaler for replication set *foo*, with target CPU utilization set to `80%`
+will create an autoscaler for ReplicaSet *foo*, with target CPU utilization set to `80%`
 and the number of replicas between 2 and 5.
 
 ## Implicit maintenance-mode deactivation
@@ -537,7 +538,7 @@ desired and could be troublesome when an HPA is active.
 
 Keep in mind that the removal of `spec.replicas` may incur a one-time
 degradation of Pod counts as the default value of this key is 1 (reference
-[Deployment Replicas](/docs/concepts/workloads/controllers/deployment#replicas).
+[Deployment Replicas](/docs/concepts/workloads/controllers/deployment#replicas)).
 Upon the update, all Pods except 1 will begin their termination procedures.  Any
 deployment application afterwards will behave as normal and respect a rolling
 update configuration as desired.  You can avoid this degradation by choosing one of the following two
